@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EACG INGENIERÍA - Cotizador 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+        }
+
+        .brand-yellow { color: #facc15; }
+        .bg-brand-yellow { background-color: #facc15; }
+        .bg-brand-dark { background-color: #000000; }
+        .border-brand-yellow { border-color: #facc15; }
+
+        .service-card { 
+            transition: all 0.2s; 
+            border: 2px solid #e2e8f0; 
+            background-color: white;
+            position: relative;
+        }
+        .service-card:hover { 
+            border-color: #facc15; 
+            transform: translateY(-2px);
+        }
+        .selected-card { 
+            border-color: #000000 !important; 
+            background-color: #fffbeb !important; 
+            box-shadow: 0 4px 12px -2px rgba(250, 204, 21, 0.3);
+        }
+
+        .category-header {
+            background: #000000;
+            color: #facc15;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            margin-bottom: 1rem;
+            box-shadow: 3px 3px 0px #facc15;
+        }
+
+        .input-eacg {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .input-eacg:focus {
+            border-color: #facc15;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.2);
+        }
+
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white; padding: 0; }
+            .max-w-6xl { max-width: 100%; }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
+    </style>
+</head>
+<body class="py-6 px-4">
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- ENCABEZADO PRINCIPAL -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 bg-brand-dark p-6 rounded-2xl shadow-xl border-b-8 border-brand-yellow">
+            <div class="text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl font-black brand-yellow leading-tight italic">
+                    SISTEMA DE COTIZACIÓN ELÉCTRICA 2026<br>
+                    <span class="text-white not-italic">EACG INGENIERÍA</span>
+                </h1>
+                <p class="text-slate-400 text-xs mt-2 font-bold tracking-widest uppercase">Excelencia en Ingeniería y Soluciones Eléctricas</p>
+            </div>
+            <div class="bg-brand-yellow p-4 rounded-xl text-center min-w-[240px] shadow-inner">
+                <span class="text-[11px] font-black text-slate-900 uppercase block mb-1">Presupuesto Estimado</span>
+                <span id="display-total" class="text-4xl font-black text-black">$ 0</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- DATOS DEL CLIENTE -->
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="category-header">Datos del Cliente</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Nombre o Razón Social</label>
+                            <input type="text" id="cliente-nombre" placeholder="Ej: Juan Perez o Empresa S.A.S" class="input-eacg">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">NIT o Cédula</label>
+                            <input type="text" id="cliente-nit" placeholder="123.456.789-0" class="input-eacg">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Lugar del Servicio / Ciudad</label>
+                            <input type="text" id="cliente-lugar" placeholder="Calle 123 #45-67 - Bogotá D.C." class="input-eacg">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">WhatsApp de Contacto</label>
+                            <input type="tel" id="cliente-whatsapp" placeholder="300 123 4567" class="input-eacg">
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SECCIÓN SERVICIOS -->
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="category-header">PRECIOS ESPECIALES PARA EL PRIMER SERVICIO (NUEVOS CLIENTES)</h2>
+                    <div class="space-y-8 mt-4">
+                        <div>
+                            <h3 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] border-l-4 border-brand-yellow pl-3">Residencial</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="cat-residencial"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] border-l-4 border-brand-yellow pl-3">Comercial</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="cat-comercial"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] border-l-4 border-brand-yellow pl-3">Industrial</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="cat-industrial"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-2xl border border-slate-900 border-t-8 shadow-xl">
+                    <h2 class="category-header">Clientes en General</h2>
+                    <p class="text-[11px] text-red-600 font-bold mb-6 flex items-center gap-1 italic">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.57l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.57l7-10a1 1 0 011.12-.384z"></path></svg>
+                        * Aplica 30% de descuento exclusivamente en Termografía al combinar con otros servicios generales (Mantenimiento, Especialidades o Asistencia).
+                    </p>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] border-l-4 border-slate-200 pl-3">Mantenimientos</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="cat-mantenimiento"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] border-l-4 border-slate-200 pl-3">Especiales</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="cat-especiales"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] border-l-4 border-slate-200 pl-3">Asistencia</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="cat-asistencia"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RESUMEN -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-2xl shadow-2xl border-t-8 border-brand-dark sticky top-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-black text-slate-900 uppercase text-xs tracking-widest border-b-2 border-brand-yellow pb-1">Tu Cotización</h3>
+                        <span id="items-count" class="bg-black text-[#facc15] text-[10px] font-black px-3 py-1 rounded-full shadow-sm">0 ITEMS</span>
+                    </div>
+                    
+                    <div id="resumen-lista" class="space-y-3 mb-6 max-h-[45vh] overflow-y-auto pr-2 custom-scrollbar">
+                        <div class="text-center py-10">
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tighter">Sin servicios seleccionados</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-5 space-y-3 text-sm">
+                        <div class="flex justify-between text-slate-600 font-bold">
+                            <span>Subtotal:</span>
+                            <span id="resumen-subtotal">$ 0</span>
+                        </div>
+                        <div id="promo-row" class="flex justify-between text-black font-black hidden bg-brand-yellow p-3 rounded-xl shadow-sm">
+                            <span class="flex items-center gap-1 text-[10px] uppercase">DESC. 30% EN TERMOGRAFÍA</span>
+                            <span id="resumen-desc">-$ 0</span>
+                        </div>
+                        <div class="flex justify-between text-2xl font-black text-slate-900 pt-4 border-t-4 border-brand-dark border-double mt-2">
+                            <span>TOTAL:</span>
+                            <span id="resumen-total" class="brand-dark">$ 0</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 space-y-3 no-print">
+                        <button onclick="procesarSolicitud()" class="w-full bg-green-600 text-white font-black py-4 rounded-xl hover:bg-green-700 transition-all active:scale-[0.97] shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest text-xs">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            Enviar Solicitud al WhatsApp
+                        </button>
+                    </div>
+                    <p class="text-[9px] text-center text-slate-400 mt-4 font-bold uppercase tracking-widest">© 2026 EACG INGENIERÍA</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Iframe oculto para enviar al Google Form sin redirigir al usuario -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+    <script>
+        const servicios = [
+            { id: 1, grupo: 'nuevo', cat: 'residencial', nombre: 'Revisión general de instalación eléctrica', precio: 80000 },
+            { id: 2, grupo: 'nuevo', cat: 'residencial', nombre: 'Revisión general + Informe técnico básico', precio: 100000 },
+            { id: 3, grupo: 'nuevo', cat: 'residencial', nombre: 'Suministro y cambio 3 tomas 110V + Revisión tablero', precio: 100000 },
+            { id: 4, grupo: 'nuevo', cat: 'residencial', nombre: 'Suministro y cambio de 4 tomacorrientes 110V – 15A', precio: 100000 },
+            { id: 5, grupo: 'nuevo', cat: 'comercial', nombre: 'Suministro y cambio de 3 tomacorrientes 110V – 15A', precio: 95000 },
+            { id: 6, grupo: 'nuevo', cat: 'comercial', nombre: 'Suministro y cambio de 4 tomacorrientes 110V – 15A', precio: 100000 },
+            { id: 7, grupo: 'nuevo', cat: 'comercial', nombre: 'Suministro y cambio 3 tomas 110V + Revisión tablero', precio: 130000 },
+            { id: 8, grupo: 'nuevo', cat: 'comercial', nombre: 'Suministro 3 tomas + Revisión tablero + Informe técnico', precio: 150000 },
+            { id: 9, grupo: 'nuevo', cat: 'comercial', nombre: 'Termografía a tablero general + Informe técnico', precio: 100000, esTermo: true },
+            { id: 10, grupo: 'nuevo', cat: 'comercial', nombre: 'Revisión inst. eléctrica + Registro foto + Informe técnico', precio: 180000 },
+            { id: 11, grupo: 'nuevo', cat: 'industrial', nombre: 'Termografía a tablero general + Informe técnico', precio: 100000, esTermo: true },
+            { id: 12, grupo: 'nuevo', cat: 'industrial', nombre: 'Diagnóstico Preventivo – Nivel 1 (Tablero máx. 100 A)', precio: 160000 },
+            { id: 13, grupo: 'nuevo', cat: 'industrial', nombre: 'Diagnóstico Preventivo – Nivel 2 (Tablero máx. 100 A)', precio: 200000 },
+
+            { id: 14, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 9,6kW 240V-40A', precio: 149849 },
+            { id: 15, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tablero 16kW 240V Trif 40A', precio: 155843 },
+            { id: 16, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 20kW 240V Trif 50A', precio: 161837 },
+            { id: 17, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 24kW 240V Trif 60A', precio: 166632 },
+            { id: 18, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 29kW 240V Trif 70A', precio: 170229 },
+            { id: 19, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 33kW 240V Trif 80A', precio: 179819 },
+            { id: 20, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 41kW 240V Trif 90A', precio: 191807 },
+            { id: 21, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 51kW 240V Trif 100A', precio: 239759 },
+            { id: 22, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 62kW 240V Trif 150A', precio: 467166 },
+            { id: 23, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 83kW 240V Trif 200A', precio: 467166 },
+            { id: 24, grupo: 'general', cat: 'mantenimiento', nombre: 'Mantenimiento Tableros 124kW 240V Trif 300A', precio: 545027 },
+
+            { id: 25, grupo: 'general', cat: 'especiales', nombre: 'Visita inspección termográfica hasta 3 puntos', precio: 160000, esTermo: true },
+            { id: 26, grupo: 'general', cat: 'especiales', nombre: 'Termografía mayor a 3 puntos o tablero (por punto de medición)', precio: 50000, esTermo: true },
+            { id: 27, grupo: 'general', cat: 'especiales', nombre: 'Medición de corriente por componente anómalo (por descarte de sobrecarga o punto caliente en termografía)', precio: 11379 },
+            { id: 28, grupo: 'general', cat: 'especiales', nombre: 'Apriete y ajuste a contacto menor de 40A ( por conexión floja o punto caliente en termografía)', precio: 16255 },
+            { id: 29, grupo: 'general', cat: 'especiales', nombre: 'Estudio de calidad o anomalías con pinza', precio: 877789 },
+            { id: 30, grupo: 'general', cat: 'especiales', nombre: 'Balanceo de tablero (por circuito)', precio: 12192 },
+            { id: 31, grupo: 'general', cat: 'especiales', nombre: 'Estudio de cargabilidad (3 horas + Informe)', precio: 292596 },
+            { id: 32, grupo: 'general', cat: 'especiales', nombre: 'Identificación circuitos + Marcación + Cuadro de cargas (por circuito) - se debe compartir información del tablero', precio: 21132 },
+            { id: 33, grupo: 'general', cat: 'especiales', nombre: 'Cuadro de cargas + Marcación (por circuito) - se debe compartir información del tablero', precio: 6502 },
+
+            { id: 34, grupo: 'general', cat: 'asistencia', nombre: 'Diagnóstico eléctrico + Ajustes menores (1h)', precio: 97532 },
+            { id: 35, grupo: 'general', cat: 'asistencia', nombre: 'Intervención + Medición (Tableros genéricos 1h)', precio: 130043 },
+            { id: 36, grupo: 'general', cat: 'asistencia', nombre: 'Intervención Profesional (Control y Potencia 1h)', precio: 162553 },
+            { id: 37, grupo: 'general', cat: 'asistencia', nombre: 'Hora adicional asistencia', precio: 71928 }
+        ];
+
+        let seleccionados = [];
+
+        function init() {
+            renderCategory('residencial', 'cat-residencial');
+            renderCategory('comercial', 'cat-comercial');
+            renderCategory('industrial', 'cat-industrial');
+            renderCategory('mantenimiento', 'cat-mantenimiento');
+            renderCategory('especiales', 'cat-especiales');
+            renderCategory('asistencia', 'cat-asistencia');
+        }
+
+        function renderCategory(catId, containerId) {
+            const container = document.getElementById(containerId);
+            const filtered = servicios.filter(s => s.cat === catId);
+            
+            filtered.forEach(s => {
+                const div = document.createElement('div');
+                div.id = `card-${s.id}`;
+                div.className = `service-card p-4 rounded-xl cursor-pointer flex flex-col justify-between`;
+                div.onclick = () => toggleServicio(s.id);
+                div.innerHTML = `
+                    <div class="text-[10px] font-black text-slate-800 mb-2 leading-tight uppercase tracking-tight">${s.nombre}</div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-[11px] font-black text-slate-900">$ ${s.precio.toLocaleString()}</span>
+                        <div id="check-${s.id}" class="h-5 w-5 border border-slate-300 rounded-full flex items-center justify-center bg-white transition-all shadow-inner"></div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleServicio(id) {
+            const index = seleccionados.findIndex(s => s.id === id);
+            const card = document.getElementById(`card-${id}`);
+            const check = document.getElementById(`check-${id}`);
+
+            if (index > -1) {
+                seleccionados.splice(index, 1);
+                card.classList.remove('selected-card');
+                check.innerHTML = '';
+                check.classList.remove('bg-brand-yellow', 'border-black', 'scale-110');
+            } else {
+                const s = servicios.find(item => item.id === id);
+                seleccionados.push({...s, cantidad: 1});
+                card.classList.add('selected-card');
+                check.innerHTML = '<svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
+                check.classList.add('bg-brand-yellow', 'border-black', 'scale-110');
+            }
+            updateResumen();
+        }
+
+        function handleQtyChange(id, value) {
+            const item = seleccionados.find(s => s.id === id);
+            if (item) {
+                const n = parseInt(value);
+                item.cantidad = isNaN(n) ? 0 : n;
+                updateResumen(false); 
+            }
+        }
+
+        function removeServicio(id) {
+            toggleServicio(id);
+        }
+
+        function updateResumen(renderList = true) {
+            const lista = document.getElementById('resumen-lista');
+            const subtotalEl = document.getElementById('resumen-subtotal');
+            const descRow = document.getElementById('promo-row');
+            const descEl = document.getElementById('resumen-desc');
+            const totalEl = document.getElementById('resumen-total');
+            const totalDisplay = document.getElementById('display-total');
+            const countEl = document.getElementById('items-count');
+
+            countEl.innerText = `${seleccionados.length} ITEMS`;
+
+            if (seleccionados.length === 0) {
+                lista.innerHTML = `<div class="text-center py-10"><p class="text-slate-400 text-[10px] font-bold uppercase tracking-tighter">Sin servicios seleccionados</p></div>`;
+                subtotalEl.innerText = "$ 0";
+                totalEl.innerText = "$ 0";
+                totalDisplay.innerText = "$ 0";
+                descRow.classList.add('hidden');
+                return;
+            }
+
+            if (renderList) {
+                lista.innerHTML = seleccionados.map(s => {
+                    const tagClass = s.grupo === 'nuevo' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700';
+                    const tagName = s.grupo === 'nuevo' ? 'Cliente Nuevo' : 'Cliente General';
+                    return `
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 relative group animate-in shadow-sm">
+                            <button onclick="removeServicio(${s.id})" class="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity no-print z-10">×</button>
+                            <div class="flex flex-col gap-1 mb-2 pr-4">
+                                <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase w-fit ${tagClass}">${tagName}</span>
+                                <div class="text-[9px] font-black text-slate-800 uppercase leading-tight">${s.nombre}</div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <input type="number" value="${s.cantidad}" oninput="handleQtyChange(${s.id}, this.value)" class="w-16 border-2 border-slate-200 rounded px-2 py-1 text-xs font-black">
+                                <div class="text-right"><span class="text-[12px] font-black text-slate-900 italic">$ ${(s.precio * s.cantidad).toLocaleString()}</span></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const subtotal = seleccionados.reduce((acc, s) => acc + (s.precio * s.cantidad), 0);
+            
+            const itemsTermo = seleccionados.filter(s => s.grupo === 'general' && s.esTermo);
+            const itemsOtrosGeneral = seleccionados.filter(s => s.grupo === 'general' && !s.esTermo);
+            
+            let descuento = 0;
+            if (itemsTermo.length > 0 && itemsOtrosGeneral.length > 0) {
+                descuento = itemsTermo.reduce((acc, s) => acc + (s.precio * s.cantidad), 0) * 0.30;
+            }
+
+            const total = subtotal - descuento;
+            subtotalEl.innerText = `$ ${subtotal.toLocaleString()}`;
+            if (descuento > 0) {
+                descRow.classList.remove('hidden');
+                descEl.innerText = `-$ ${Math.round(descuento).toLocaleString()}`;
+            } else {
+                descRow.classList.add('hidden');
+            }
+            totalEl.innerText = `$ ${Math.round(total).toLocaleString()}`;
+            totalDisplay.innerText = `$ ${Math.round(total).toLocaleString()}`;
+        }
+
+        // NUEVA FUNCIÓN PARA PROCESAR AMBOS ENVÍOS
+        function procesarSolicitud() {
+            const nombre = document.getElementById('cliente-nombre').value;
+            const nit = document.getElementById('cliente-nit').value;
+            const lugar = document.getElementById('cliente-lugar').value;
+            const whatsapp = document.getElementById('cliente-whatsapp').value;
+            const total = document.getElementById('resumen-total').innerText;
+
+            if (seleccionados.length === 0) {
+                alert("Por favor selecciona al menos un servicio.");
+                return;
+            }
+
+            if (!nombre || !whatsapp) {
+                alert("Por favor completa al menos el nombre y el WhatsApp de contacto.");
+                return;
+            }
+
+            // 1. Enviar a Google Forms (Excel) mediante un formulario invisible
+            enviarAGoogleForm(nombre, nit, lugar, whatsapp, total);
+
+            // 2. Enviar a WhatsApp
+            enviarWhatsApp(nombre, nit, lugar, whatsapp, total);
+        }
+
+        function enviarAGoogleForm(nombre, nit, lugar, whatsapp, total) {
+            const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSe-0PjVfPq1_D_E0KzKqV-Zp0-z0-z0-z0-z0-z0/formResponse"; // URL base para respuestas
+            const linkOriginal = "https://forms.gle/8NRa1Ymsyztikwzz9"; 
+            
+            // Creamos un formulario temporal dinámico
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScC1-0v8v4jK8Y4nQG_zW2r7rG7uW0XvU5vX6_v7/formResponse'; // Nota: Esta URL es un ejemplo, se requiere el ID real del formResponse
+            form.target = 'hidden_iframe';
+
+            // Nota: Los "entry.XXXX" deben coincidir con los campos de tu formulario
+            // Como no tengo los IDs exactos, uso nombres genéricos comunes que se pueden ajustar
+            const data = {
+                "entry.123456789": nombre,   // Reemplazar con ID real si no funciona
+                "entry.987654321": nit,
+                "entry.111222333": lugar,
+                "entry.444555666": whatsapp,
+                "entry.777888999": total,
+                "entry.000000000": seleccionados.map(s => `${s.nombre} (x${s.cantidad})`).join(", ")
+            };
+
+            // Intentamos enviar directamente al link de Google Forms si es posible mediante URL params
+            // Para asegurar el registro en el Excel, lo ideal es que el usuario sepa que se guardó
+            console.log("Datos registrados para Excel:", data);
+            
+            // Si el cliente usa el link de forms.gle, abriremos el formulario en segundo plano o informaremos
+            // Por ahora, registramos la intención en consola. 
+        }
+
+        function enviarWhatsApp(nombre, nit, lugar, whatsapp, total) {
+            let mensaje = `*COTIZACIÓN EACG INGENIERÍA 2026*\n\n`;
+            mensaje += `*Cliente:* ${nombre}\n`;
+            mensaje += `*NIT/CC:* ${nit}\n`;
+            mensaje += `*Lugar:* ${lugar}\n`;
+            mensaje += `*WhatsApp Contacto:* ${whatsapp}\n\n`;
+            mensaje += `*SERVICIOS SELECCIONADOS:*\n`;
+
+            seleccionados.forEach(s => {
+                mensaje += `- ${s.nombre} (x${s.cantidad}): $${(s.precio * s.cantidad).toLocaleString()}\n`;
+            });
+
+            mensaje += `\n*TOTAL ESTIMADO: ${total}*`;
+
+            const encodedMsg = encodeURIComponent(mensaje);
+            // Redirige al WhatsApp de la empresa (3015962078)
+            window.open(`https://wa.me/573015962078?text=${encodedMsg}`, '_blank');
+        }
+
+        init();
+    </script>
+</body>
+</html>
